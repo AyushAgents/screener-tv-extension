@@ -3,7 +3,7 @@
   "name": "Screener + TradingView",
   "version": "0.3",
   "description": "Show TradingView chart in Side Panel from Screener.in",
-  "permissions": ["sidePanel", "tabs"],
+  "permissions": ["sidePanel", "tabs", "storage"],
   "side_panel": {
     "default_path": "sidepanel.html"
   },
