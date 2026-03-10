@@ -1,67 +1,144 @@
 const urlParts = window.location.pathname.split("/").filter(Boolean);
 const ticker = urlParts[1] ? urlParts[1].toUpperCase() : "NIFTY";
-const tvSymbol = `NSE:${ticker}`;  // Keep colon literal — do NOT encode
+const tvSymbol = `NSE:${ticker}`;
 
-// Build URL manually — widgetembed needs literal : and @ characters
 const tvUrl = "https://www.tradingview.com/widgetembed/?" + [
-  `symbol=${tvSymbol}`,           // NSE:RELIANCE — literal colon
+  `symbol=${tvSymbol}`,
   "interval=D",
   "theme=light",
   "style=1",
   "locale=en",
   "hide_top_toolbar=0",
   "save_image=1",
-  "studies=RSI@tv-basicstudies",              // literal @ — not %40
+  "studies=RSI@tv-basicstudies",
   "studies=StochasticRSI@tv-basicstudies",
   "studies=MACD@tv-basicstudies"
 ].join("&");
 
-console.log("[TV] Loading:", tvUrl);
+// ── Find Screener's own chart section ──
+const screenerChart = document.getElementById("chart");
+if (!screenerChart) {
+  console.warn("[TV] #chart not found, aborting");
+  return;
+}
 
-// Wrapper card
-const wrapper = document.createElement("div");
-wrapper.id = "tv-screener-wrapper";
-wrapper.style.cssText = `
-  margin: 24px 0;
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
+// ── Build the toggle tab bar ──
+const tabBar = document.createElement("div");
+tabBar.style.cssText = `
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+  font-family: inherit;
+`;
+
+function makeTab(label, active) {
+  const tab = document.createElement("button");
+  tab.innerText = label;
+  tab.dataset.active = active ? "true" : "false";
+  tab.style.cssText = `
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #e0e0e0;
+    background: ${active ? "#fff" : "#f4f4f4"};
+    color: ${active ? "#1a73e8" : "#666"};
+    border-bottom: ${active ? "2px solid #1a73e8" : "1px solid #e0e0e0"};
+    transition: all 0.15s ease;
+    outline: none;
+  `;
+  // First tab = left rounded, second = right rounded
+  return tab;
+}
+
+const tabScreener = makeTab("📊 Screener Chart", true);
+const tabTV       = makeTab("📈 TradingView + Indicators", false);
+tabScreener.style.borderRadius = "8px 0 0 0";
+tabTV.style.borderRadius       = "0 8px 0 0";
+
+tabBar.appendChild(tabScreener);
+tabBar.appendChild(tabTV);
+
+// ── Build the TradingView iframe (hidden by default) ──
+const tvWrapper = document.createElement("div");
+tvWrapper.id = "tv-wrapper";
+tvWrapper.style.cssText = `
+  display: none;
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
   overflow: hidden;
-  background: #fff;
 `;
-
-const header = document.createElement("div");
-header.style.cssText = `
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #444;
-  background: #f7f7f7;
-  border-bottom: 1px solid #e8e8e8;
-`;
-header.innerText = `TradingView Chart — ${ticker}`;
 
 const iframe = document.createElement("iframe");
-iframe.src = tvUrl;
-iframe.id = "tv-screener-iframe";
+iframe.id  = "tv-screener-iframe";
 iframe.style.cssText = `
   width: 100%;
-  height: 520px;
+  height: 540px;
   border: none;
   display: block;
 `;
+// Lazy load: only set src when tab is first clicked
+iframe.dataset.src = tvUrl;
 
-wrapper.appendChild(header);
-wrapper.appendChild(iframe);
+tvWrapper.appendChild(iframe);
 
-// Placement: after Screener's own chart section
-const screenerChart = document.getElementById("chart");
-const peersSection  = document.getElementById("peers");
-const titleEl       = document.querySelector("h1");
+// ── Wrap Screener's chart in a styled container ──
+const screenerWrapper = document.createElement("div");
+screenerWrapper.id = "screener-chart-wrapper";
+screenerWrapper.style.cssText = `
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+`;
 
-if (screenerChart && screenerChart.parentElement) {
-  screenerChart.parentElement.insertBefore(wrapper, screenerChart.nextSibling);
-} else if (peersSection && peersSection.parentElement) {
-  peersSection.parentElement.insertBefore(wrapper, peersSection);
-} else if (titleEl && titleEl.parentElement) {
-  titleEl.parentElement.insertBefore(wrapper, titleEl.nextSibling);
-}
+// ── Tab switching logic ──
+tabScreener.addEventListener("click", () => {
+  // Show Screener, hide TV
+  screenerWrapper.style.display = "block";
+  tvWrapper.style.display       = "none";
+
+  tabScreener.style.background   = "#fff";
+  tabScreener.style.color        = "#1a73e8";
+  tabScreener.style.borderBottom = "2px solid #1a73e8";
+
+  tabTV.style.background   = "#f4f4f4";
+  tabTV.style.color        = "#666";
+  tabTV.style.borderBottom = "1px solid #e0e0e0";
+});
+
+tabTV.addEventListener("click", () => {
+  // Lazy load: only set src on first click
+  if (!iframe.src || iframe.src === window.location.href) {
+    iframe.src = iframe.dataset.src;
+    console.log("[TV] Lazy loading chart for:", tvSymbol);
+  }
+
+  // Show TV, hide Screener
+  tvWrapper.style.display       = "block";
+  screenerWrapper.style.display = "none";
+
+  tabTV.style.background   = "#fff";
+  tabTV.style.color        = "#1a73e8";
+  tabTV.style.borderBottom = "2px solid #1a73e8";
+
+  tabScreener.style.background   = "#f4f4f4";
+  tabScreener.style.color        = "#666";
+  tabScreener.style.borderBottom = "1px solid #e0e0e0";
+});
+
+// ── Outer container tying everything together ──
+const container = document.createElement("div");
+container.style.cssText = `
+  margin: 16px 0 24px 0;
+  border-radius: 8px;
+`;
+
+container.appendChild(tabBar);
+container.appendChild(screenerWrapper);
+container.appendChild(tvWrapper);
+
+// ── Move Screener's chart into our wrapper ──
+screenerChart.parentElement.insertBefore(container, screenerChart);
+screenerWrapper.appendChild(screenerChart);
