@@ -1,3 +1,5 @@
+(() => {
+
 const urlParts = window.location.pathname.split("/").filter(Boolean);
 const ticker = urlParts[1] ? urlParts[1].toUpperCase() : "NIFTY";
 const tvSymbol = `NSE:${ticker}`;
@@ -15,14 +17,12 @@ const tvUrl = "https://www.tradingview.com/widgetembed/?" + [
   "studies=MACD@tv-basicstudies"
 ].join("&");
 
-// ── Find Screener's own chart section ──
 const screenerChart = document.getElementById("chart");
 if (!screenerChart) {
   console.warn("[TV] #chart not found, aborting");
-  return;
+  return;  // ✅ Now valid because we're inside a function
 }
 
-// ── Build the toggle tab bar ──
 const tabBar = document.createElement("div");
 tabBar.style.cssText = `
   display: flex;
@@ -47,7 +47,6 @@ function makeTab(label, active) {
     transition: all 0.15s ease;
     outline: none;
   `;
-  // First tab = left rounded, second = right rounded
   return tab;
 }
 
@@ -59,7 +58,6 @@ tabTV.style.borderRadius       = "0 8px 0 0";
 tabBar.appendChild(tabScreener);
 tabBar.appendChild(tabTV);
 
-// ── Build the TradingView iframe (hidden by default) ──
 const tvWrapper = document.createElement("div");
 tvWrapper.id = "tv-wrapper";
 tvWrapper.style.cssText = `
@@ -71,19 +69,16 @@ tvWrapper.style.cssText = `
 `;
 
 const iframe = document.createElement("iframe");
-iframe.id  = "tv-screener-iframe";
+iframe.id = "tv-screener-iframe";
 iframe.style.cssText = `
   width: 100%;
   height: 540px;
   border: none;
   display: block;
 `;
-// Lazy load: only set src when tab is first clicked
 iframe.dataset.src = tvUrl;
-
 tvWrapper.appendChild(iframe);
 
-// ── Wrap Screener's chart in a styled container ──
 const screenerWrapper = document.createElement("div");
 screenerWrapper.id = "screener-chart-wrapper";
 screenerWrapper.style.cssText = `
@@ -93,52 +88,39 @@ screenerWrapper.style.cssText = `
   overflow: hidden;
 `;
 
-// ── Tab switching logic ──
 tabScreener.addEventListener("click", () => {
-  // Show Screener, hide TV
   screenerWrapper.style.display = "block";
   tvWrapper.style.display       = "none";
-
   tabScreener.style.background   = "#fff";
   tabScreener.style.color        = "#1a73e8";
   tabScreener.style.borderBottom = "2px solid #1a73e8";
-
   tabTV.style.background   = "#f4f4f4";
   tabTV.style.color        = "#666";
   tabTV.style.borderBottom = "1px solid #e0e0e0";
 });
 
 tabTV.addEventListener("click", () => {
-  // Lazy load: only set src on first click
   if (!iframe.src || iframe.src === window.location.href) {
     iframe.src = iframe.dataset.src;
-    console.log("[TV] Lazy loading chart for:", tvSymbol);
+    console.log("[TV] Lazy loading:", tvSymbol);
   }
-
-  // Show TV, hide Screener
   tvWrapper.style.display       = "block";
   screenerWrapper.style.display = "none";
-
   tabTV.style.background   = "#fff";
   tabTV.style.color        = "#1a73e8";
   tabTV.style.borderBottom = "2px solid #1a73e8";
-
   tabScreener.style.background   = "#f4f4f4";
   tabScreener.style.color        = "#666";
   tabScreener.style.borderBottom = "1px solid #e0e0e0";
 });
 
-// ── Outer container tying everything together ──
 const container = document.createElement("div");
-container.style.cssText = `
-  margin: 16px 0 24px 0;
-  border-radius: 8px;
-`;
-
+container.style.cssText = `margin: 16px 0 24px 0; border-radius: 8px;`;
 container.appendChild(tabBar);
 container.appendChild(screenerWrapper);
 container.appendChild(tvWrapper);
 
-// ── Move Screener's chart into our wrapper ──
 screenerChart.parentElement.insertBefore(container, screenerChart);
 screenerWrapper.appendChild(screenerChart);
+
+})();  // ← IIFE closes here
