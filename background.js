@@ -1,16 +1,12 @@
-// Open side panel automatically when on Screener company pages
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === "complete" &&
-      tab.url &&
-      tab.url.includes("screener.in/company/")) {
-    chrome.sidePanel.open({ tabId });
-  }
+// Open side panel when extension icon is clicked
+chrome.action.onClicked.addListener((tab) => {
+  chrome.sidePanel.open({ tabId: tab.id });
 });
 
-// Listen for symbol messages from content.js
+// Listen for symbol from content.js and store it
 chrome.runtime.onMessage.addListener((message, sender) => {
   if (message.type === "SET_SYMBOL") {
-    // Store so sidepanel.html can read it
     chrome.storage.session.set({ tvSymbol: message.symbol });
+    console.log("[TV Background] Symbol stored:", message.symbol);
   }
 });
