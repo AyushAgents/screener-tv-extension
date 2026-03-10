@@ -1,10 +1,23 @@
 {
   "manifest_version": 3,
   "name": "Screener + TradingView",
-  "version": "0.4",
-  "description": "Open TradingView side by side with Screener.in",
-  "permissions": ["tabs", "storage", "windows"],
-  "action": {},
+  "version": "0.6",
+  "permissions": [
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "https://www.tradingview.com/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
   "content_scripts": [
     {
       "matches": ["https://www.screener.in/company/*"],
