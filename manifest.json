@@ -1,14 +1,20 @@
 {
   "manifest_version": 3,
   "name": "Screener + TradingView",
-  "version": "0.2",
-  "description": "Show TradingView chart with indicators on Screener.in company pages.",
-  "permissions": [],
+  "version": "0.3",
+  "description": "Show TradingView chart in Side Panel from Screener.in",
+  "permissions": ["sidePanel", "tabs"],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
   "content_scripts": [
     {
       "matches": ["https://www.screener.in/company/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
 }
