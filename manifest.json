@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Screener + TradingView",
-  "version": "0.1",
+  "version": "0.2",
   "description": "Show TradingView chart with indicators on Screener.in company pages.",
   "permissions": [],
   "content_scripts": [
@@ -10,14 +10,5 @@
       "js": ["content.js"],
       "run_at": "document_idle"
     }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["tv-panel.html", "tv-panel.js"],
-      "matches": ["https://www.screener.in/*"]
-    }
-  ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self' https://s3.tradingview.com; object-src 'self'"
-  }
+  ]
 }
