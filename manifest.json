@@ -13,8 +13,11 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["tv-panel.html"],
+      "resources": ["tv-panel.html", "tv-panel.js"],
       "matches": ["https://www.screener.in/*"]
     }
-  ]
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' https://s3.tradingview.com; object-src 'self'"
+  }
 }
