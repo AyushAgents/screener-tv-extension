@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="tv-container" style="height:100%; width:100%;"></div>
+
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+    // Read ?symbol=NSE:RELIANCE passed from content.js
+    const params = new URLSearchParams(location.search);
+    const symbol = params.get("symbol") || "NSE:NIFTY";
+
+    new TradingView.widget({
+      container_id: "tv-container",
+      symbol: symbol,
+      interval: "D",          // Daily candles – change to "W" for weekly
+      autosize: true,
+      theme: "light",          // "dark" if you prefer
+      style: "1",              // 1 = candlestick
+      locale: "en",
+      hide_top_toolbar: false,
+
+      // ── ADD YOUR INDICATORS HERE ──
+      studies: [
+        { id: "RSI@tv-basicstudies" },
+        { id: "StochasticRSI@tv-basicstudies" },
+        { id: "MACD@tv-basicstudies" }
+      ]
+    });
+  </script>
+</body>
+</html>
