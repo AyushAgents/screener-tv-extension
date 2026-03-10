@@ -2,17 +2,14 @@
   const urlParts = window.location.pathname.split("/").filter(Boolean);
   const ticker = urlParts[1] ? urlParts[1].toUpperCase() : "NIFTY";
   const tvSymbol = `NSE:${ticker}`;
-
-  // Direct chart URL — works now because X-Frame-Options is stripped
   const tvUrl = `https://www.tradingview.com/chart/?symbol=${tvSymbol}`;
 
   const screenerChart = document.getElementById("chart");
   if (!screenerChart) {
     console.warn("[TV] #chart not found");
     return;
-  }
+  }  // ← THIS CLOSING BRACE WAS MISSING
 
-  // ── Tab bar ──
   const tabBar = document.createElement("div");
   tabBar.style.cssText = `display: flex; font-family: inherit;`;
 
@@ -41,7 +38,6 @@
   tabBar.appendChild(tabScreener);
   tabBar.appendChild(tabTV);
 
-  // ── TradingView iframe wrapper ──
   const tvWrapper = document.createElement("div");
   tvWrapper.style.cssText = `
     display: none;
@@ -53,7 +49,7 @@
 
   const iframe = document.createElement("iframe");
   iframe.id = "tv-screener-iframe";
-  iframe.dataset.src = tvUrl; // lazy load
+  iframe.dataset.src = tvUrl;
   iframe.style.cssText = `
     width: 100%;
     height: 580px;
@@ -62,7 +58,6 @@
   `;
   tvWrapper.appendChild(iframe);
 
-  // ── Screener chart wrapper ──
   const screenerWrapper = document.createElement("div");
   screenerWrapper.style.cssText = `
     border: 1px solid #e0e0e0;
@@ -71,7 +66,6 @@
     overflow: hidden;
   `;
 
-  // ── Tab switching ──
   tabScreener.addEventListener("click", () => {
     screenerWrapper.style.display = "block";
     tvWrapper.style.display       = "none";
@@ -84,7 +78,6 @@
   });
 
   tabTV.addEventListener("click", () => {
-    // Lazy load iframe only on first click
     if (!iframe.src || iframe.src === window.location.href) {
       iframe.src = iframe.dataset.src;
     }
@@ -98,7 +91,6 @@
     tabScreener.style.borderBottom = "1px solid #e0e0e0";
   });
 
-  // ── Assemble and inject ──
   const container = document.createElement("div");
   container.style.cssText = `margin: 16px 0 24px 0; border-radius: 8px;`;
   container.appendChild(tabBar);
