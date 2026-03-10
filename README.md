@@ -22,7 +22,8 @@ click the tab.
 
 ## Screenshots
 
-> Add screenshots here after setup
+<img width="1302" height="501" alt="Screenshot 2026-03-11 at 1 39 04 AM" src="https://github.com/user-attachments/assets/131115bd-ba83-43ff-876e-fe788a2d5218" />
+
 
 ---
 
