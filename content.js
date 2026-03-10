@@ -1,19 +1,29 @@
-// Step 1: Read company name from page title (e.g. "Reliance Industries Ltd.")
-const titleEl = document.querySelector("h1");
-const rawText  = titleEl ? titleEl.innerText.trim() : "";
-
-// Step 2: Screener URL itself contains the ticker e.g. /company/RELIANCE/
-// This is more reliable than parsing the h1 text
+// Step 1: Get ticker from Screener URL e.g. /company/RELIANCE/
 const urlParts = window.location.pathname.split("/").filter(Boolean);
-// URL is /company/RELIANCE/ → parts: ["company", "RELIANCE"]
-const tickerFromUrl = urlParts[1] ? urlParts[1].toUpperCase() : "NIFTY";
+const ticker = urlParts[1] ? urlParts[1].toUpperCase() : "NIFTY";
+const tvSymbol = `NSE:${ticker}`;
 
-// Step 3: Build TradingView symbol (NSE first, simplest start)
-const tvSymbol = `NSE:${tickerFromUrl}`;
+// Step 2: Build TradingView's own embed URL with your indicators
+const studies = [
+  "RSI@tv-basicstudies",
+  "StochasticRSI@tv-basicstudies",
+  "MACD@tv-basicstudies"
+].join("|");
 
-// Step 4: Create the iframe pointing to tv-panel.html
+const tvUrl =
+  `https://www.tradingview.com/widgetembed/?` +
+  `symbol=${encodeURIComponent(tvSymbol)}` +
+  `&interval=D` +
+  `&theme=light` +
+  `&style=1` +
+  `&studies=${encodeURIComponent(studies)}` +
+  `&locale=en` +
+  `&hide_top_toolbar=0` +
+  `&save_image=1`;
+
+// Step 3: Create iframe pointing directly to TradingView
 const iframe = document.createElement("iframe");
-iframe.src    = chrome.runtime.getURL(`tv-panel.html?symbol=${encodeURIComponent(tvSymbol)}`);
+iframe.src = tvUrl;
 iframe.style.cssText = `
   width: 100%;
   height: 500px;
@@ -23,7 +33,8 @@ iframe.style.cssText = `
   display: block;
 `;
 
-// Step 5: Insert below the h1 heading on the Screener page
+// Step 4: Insert below the company heading
+const titleEl = document.querySelector("h1");
 if (titleEl && titleEl.parentElement) {
   titleEl.parentElement.insertBefore(iframe, titleEl.nextSibling);
 }
