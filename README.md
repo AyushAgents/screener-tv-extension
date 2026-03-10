@@ -87,3 +87,8 @@ screener-tv-extension/
 
 MIT — see `LICENSE` file.
 
+
+## General Disclaimer
+---
+
+For informational and educational purposes only. Nothing herein constitutes financial advice or a recommendation to initiate or exit any position. All market activity involves risk. Past performance does not guarantee future results. Data accessed via open-source libraries for non-commercial use only. Not affiliated with or endorsed by any data vendor or platform.  ·  Built by Ayush Agrawal ·  Made with ❤️ using Claude by Anthropic.
