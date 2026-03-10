@@ -3,22 +3,32 @@ chrome.action.onClicked.addListener(async (tab) => {
   const symbol = data.tvSymbol || "NSE:NIFTY";
   const tvUrl = `https://www.tradingview.com/chart/?symbol=${symbol}`;
 
-  // Snap Screener to left half (assumes 1920px wide screen — adjust if needed)
-  const W = 1920;
-  const H = 1080;
-  const half = Math.floor(W / 2);
+  // Get current window's actual dimensions — no hardcoding
+  const currentWindow = await chrome.windows.get(tab.windowId);
 
+  const left   = currentWindow.left;
+  const top    = currentWindow.top;
+  const width  = currentWindow.width;
+  const height = currentWindow.height;
+  const half   = Math.floor(width / 2);
+
+  // Snap Screener to left half of current window space
   await chrome.windows.update(tab.windowId, {
-    left: 0, top: 0,
-    width: half, height: H,
-    state: "normal"
+    left:   left,
+    top:    top,
+    width:  half,
+    height: height,
+    state:  "normal"
   });
 
+  // Open TradingView in right half
   await chrome.windows.create({
-    url: tvUrl,
-    left: half, top: 0,
-    width: half, height: H,
-    state: "normal"
+    url:    tvUrl,
+    left:   left + half,
+    top:    top,
+    width:  half,
+    height: height,
+    state:  "normal"
   });
 });
 
