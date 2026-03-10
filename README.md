@@ -32,7 +32,7 @@ This extension is not published on the Chrome Web Store.
 Install it manually in Developer Mode:
 
 1. Download the repository as ZIP : https://github.com/AyushAgents/screener-tv-extension (Click on the Green <> Code button)
-2. 2. Open Chrome and go to `chrome://extensions`
+2. Open Chrome and go to `chrome://extensions`
 3. Enable **Developer mode** (toggle, top-right)
 4. Click **Load unpacked** and select the `screener-tv-extension` folder
 5. Open any Screener company page: `https://www.screener.in/company/RELIANCE/`
@@ -46,10 +46,10 @@ Install it manually in Developer Mode:
 
 ## File Structure
 screener-tv-extension/
-├── manifest.json — Extension config (Manifest V3)
-├── rules.json — Strips X-Frame-Options headers from TradingView
-├── background.js — Service worker (minimal)
-└── content.js — Injects chart toggle UI into Screener pages
+1 manifest.json — Extension config (Manifest V3)
+2 rules.json — Strips X-Frame-Options headers from TradingView
+3 background.js — Service worker (minimal)
+4 content.js — Injects chart toggle UI into Screener pages
 
 
 ## How it works
