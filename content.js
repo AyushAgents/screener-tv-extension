@@ -1,24 +1,24 @@
 const urlParts = window.location.pathname.split("/").filter(Boolean);
 const ticker = urlParts[1] ? urlParts[1].toUpperCase() : "NIFTY";
-const tvSymbol = `NSE:${ticker}`;
+const tvSymbol = `NSE:${ticker}`;  // Keep colon literal — do NOT encode
 
-// Build TradingView embed URL
-const params = new URLSearchParams({
-  symbol: tvSymbol,
-  interval: "D",
-  theme: "light",
-  style: "1",
-  locale: "en",
-  hide_top_toolbar: "0",
-  save_image: "1",
-});
-params.append("studies", "RSI@tv-basicstudies");
-params.append("studies", "StochasticRSI@tv-basicstudies");
-params.append("studies", "MACD@tv-basicstudies");
+// Build URL manually — widgetembed needs literal : and @ characters
+const tvUrl = "https://www.tradingview.com/widgetembed/?" + [
+  `symbol=${tvSymbol}`,           // NSE:RELIANCE — literal colon
+  "interval=D",
+  "theme=light",
+  "style=1",
+  "locale=en",
+  "hide_top_toolbar=0",
+  "save_image=1",
+  "studies=RSI@tv-basicstudies",              // literal @ — not %40
+  "studies=StochasticRSI@tv-basicstudies",
+  "studies=MACD@tv-basicstudies"
+].join("&");
 
-const tvUrl = `https://www.tradingview.com/widgetembed/?${params.toString()}`;
+console.log("[TV] Loading:", tvUrl);
 
-// Build a nice wrapper card so it blends with Screener's design
+// Wrapper card
 const wrapper = document.createElement("div");
 wrapper.id = "tv-screener-wrapper";
 wrapper.style.cssText = `
@@ -29,7 +29,6 @@ wrapper.style.cssText = `
   background: #fff;
 `;
 
-// Header bar matching Screener's section style
 const header = document.createElement("div");
 header.style.cssText = `
   padding: 10px 16px;
@@ -41,7 +40,6 @@ header.style.cssText = `
 `;
 header.innerText = `TradingView Chart — ${ticker}`;
 
-// The iframe itself
 const iframe = document.createElement("iframe");
 iframe.src = tvUrl;
 iframe.id = "tv-screener-iframe";
@@ -55,23 +53,15 @@ iframe.style.cssText = `
 wrapper.appendChild(header);
 wrapper.appendChild(iframe);
 
-// ── PLACEMENT STRATEGY ──
-// Try 1: Insert after Screener's own #chart section (most logical spot)
+// Placement: after Screener's own chart section
 const screenerChart = document.getElementById("chart");
-
-// Try 2: Before the #peers section
-const peersSection = document.getElementById("peers");
-
-// Try 3: Fallback — after h1
-const titleEl = document.querySelector("h1");
+const peersSection  = document.getElementById("peers");
+const titleEl       = document.querySelector("h1");
 
 if (screenerChart && screenerChart.parentElement) {
   screenerChart.parentElement.insertBefore(wrapper, screenerChart.nextSibling);
-  console.log("[TV] Inserted after #chart");
 } else if (peersSection && peersSection.parentElement) {
   peersSection.parentElement.insertBefore(wrapper, peersSection);
-  console.log("[TV] Inserted before #peers");
 } else if (titleEl && titleEl.parentElement) {
   titleEl.parentElement.insertBefore(wrapper, titleEl.nextSibling);
-  console.log("[TV] Inserted after h1 (fallback)");
 }
