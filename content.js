@@ -1,40 +1,77 @@
-// Step 1: Get ticker from Screener URL e.g. /company/RELIANCE/
 const urlParts = window.location.pathname.split("/").filter(Boolean);
 const ticker = urlParts[1] ? urlParts[1].toUpperCase() : "NIFTY";
 const tvSymbol = `NSE:${ticker}`;
 
-// Step 2: Build TradingView's own embed URL with your indicators
-const studies = [
-  "RSI@tv-basicstudies",
-  "StochasticRSI@tv-basicstudies",
-  "MACD@tv-basicstudies"
-].join("|");
+// Build TradingView embed URL
+const params = new URLSearchParams({
+  symbol: tvSymbol,
+  interval: "D",
+  theme: "light",
+  style: "1",
+  locale: "en",
+  hide_top_toolbar: "0",
+  save_image: "1",
+});
+params.append("studies", "RSI@tv-basicstudies");
+params.append("studies", "StochasticRSI@tv-basicstudies");
+params.append("studies", "MACD@tv-basicstudies");
 
-const tvUrl =
-  `https://www.tradingview.com/widgetembed/?` +
-  `symbol=${encodeURIComponent(tvSymbol)}` +
-  `&interval=D` +
-  `&theme=light` +
-  `&style=1` +
-  `&studies=${encodeURIComponent(studies)}` +
-  `&locale=en` +
-  `&hide_top_toolbar=0` +
-  `&save_image=1`;
+const tvUrl = `https://www.tradingview.com/widgetembed/?${params.toString()}`;
 
-// Step 3: Create iframe pointing directly to TradingView
+// Build a nice wrapper card so it blends with Screener's design
+const wrapper = document.createElement("div");
+wrapper.id = "tv-screener-wrapper";
+wrapper.style.cssText = `
+  margin: 24px 0;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+`;
+
+// Header bar matching Screener's section style
+const header = document.createElement("div");
+header.style.cssText = `
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  background: #f7f7f7;
+  border-bottom: 1px solid #e8e8e8;
+`;
+header.innerText = `TradingView Chart — ${ticker}`;
+
+// The iframe itself
 const iframe = document.createElement("iframe");
 iframe.src = tvUrl;
+iframe.id = "tv-screener-iframe";
 iframe.style.cssText = `
   width: 100%;
-  height: 500px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-top: 20px;
+  height: 520px;
+  border: none;
   display: block;
 `;
 
-// Step 4: Insert below the company heading
+wrapper.appendChild(header);
+wrapper.appendChild(iframe);
+
+// ── PLACEMENT STRATEGY ──
+// Try 1: Insert after Screener's own #chart section (most logical spot)
+const screenerChart = document.getElementById("chart");
+
+// Try 2: Before the #peers section
+const peersSection = document.getElementById("peers");
+
+// Try 3: Fallback — after h1
 const titleEl = document.querySelector("h1");
-if (titleEl && titleEl.parentElement) {
-  titleEl.parentElement.insertBefore(iframe, titleEl.nextSibling);
+
+if (screenerChart && screenerChart.parentElement) {
+  screenerChart.parentElement.insertBefore(wrapper, screenerChart.nextSibling);
+  console.log("[TV] Inserted after #chart");
+} else if (peersSection && peersSection.parentElement) {
+  peersSection.parentElement.insertBefore(wrapper, peersSection);
+  console.log("[TV] Inserted before #peers");
+} else if (titleEl && titleEl.parentElement) {
+  titleEl.parentElement.insertBefore(wrapper, titleEl.nextSibling);
+  console.log("[TV] Inserted after h1 (fallback)");
 }
